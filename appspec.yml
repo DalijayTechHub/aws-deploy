@@ -1,0 +1,15 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /path/to/deployment/directory  # Update with your actual path
+
+hooks:
+  BeforeInstall:
+    - location: scripts/validate-service.sh
+      timeout: 300
+      runas: root
+  AfterAllowTestTraffic:
+    - location: scripts/test-container.sh
+      timeout: 300
+      runas: root
