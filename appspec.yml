@@ -2,11 +2,15 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /path/to/deployment/directory  # Update with your actual path
+    destination: /var/www/myapp  # Update with the correct deployment path
 
 hooks:
   BeforeInstall:
     - location: scripts/validate-service.sh
+      timeout: 300
+      runas: root
+  AfterInstall:
+    - location: scripts/start-server.sh
       timeout: 300
       runas: root
   AfterAllowTestTraffic:
