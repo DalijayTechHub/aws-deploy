@@ -24,12 +24,12 @@ jobs:
 
       - name: Sync files to S3
         run: |
-          aws s3 sync . s3://my-deployment-artifact/ --region $AWS_REGION
+          aws s3 sync . s3://deploybucketapp/ --region $AWS_REGION       
 
       - name: Create CodeDeploy Deployment
         run: |
           aws deploy create-deployment \
             --application-name my-codedeploy-app \
             --deployment-group-name my-deployment-group \
-            --s3-location bucket=my-deployment-artifact,bundleType=zip,key=AppSpec.zip \
+            --s3-location bucket=deploybucketapp,bundleType=zip,key=AppSpec.zip \
             --region $AWS_REGION
