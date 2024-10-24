@@ -27,14 +27,14 @@ jobs:
 
       - name: Create deployment package
         run: |
-          zip -r AppSpec.zip AppSpec.yml scripts/
+          zip -r appspec.zip appspec.yml scripts/
 
       - name: List files in zip (debug step)
-        run: unzip -l AppSpec.zip
+        run: unzip -l appspec.zip
 
       - name: Sync zip file to S3
         run: |
-          aws s3 cp AppSpec.zip s3://deploybucketapp/AppSpec.zip --region $AWS_REGION
+          aws s3 cp appspec.zip s3://deploybucketapp/appspec.zip --region $AWS_REGION
 
       - name: Check AWS CLI version
         run: aws --version
