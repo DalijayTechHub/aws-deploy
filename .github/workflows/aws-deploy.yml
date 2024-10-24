@@ -40,7 +40,7 @@ jobs:
         run: aws --version
 
       - name: List S3 bucket contents (debug step)
-        run: aws s3 ls s3://deploybucketapp/ --region $AWS_REGION
+        run: aws s3 ls s3://deploybucketapp/AppSpec.yml/ --region $AWS_REGION
 
       - name: Create CodeDeploy Deployment
         run: |
