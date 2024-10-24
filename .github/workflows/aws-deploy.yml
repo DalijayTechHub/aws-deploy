@@ -1,4 +1,4 @@
-name: Deploy to AWS
+name: Deploy to AWS ECS
 
 on:
   push:
@@ -9,61 +9,22 @@ env:
   AWS_REGION: us-east-1
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  PRIVATE_SSH_KEY: ${{ secrets.AWS_SSH_KEY }}
-  SERVER_PUBLIC_IP: ${{ secrets.AWS_PUBLIC_KEY }}
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Checkout the repository
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Login to AWS ECR
-      - name: Login to AWS ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-        with:
-          region: ${{ env.AWS_REGION }}
-
-      # Step 3: Build and push Docker image to ECR
-      - name: Build and push Docker image
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: aws-deploy
-          IMAGE_TAG: ${{ github.sha }}
+      - name: Sync files to S3
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          aws s3 sync . s3:/my-deployment-artifact/ --region $AWS_REGION
 
-      # Step 4: Deploy Docker image to EC2
-      - name: Deploy Docker image to EC2
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: aws-deploy
-          IMAGE_TAG: ${{ github.sha }}
-          AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ env.SERVER_PUBLIC_IP }}
-          username: ubuntu
-          key: ${{ env.PRIVATE_SSH_KEY }}
-          script: |-
-            # Update packages and install Docker and AWS CLI
-            sudo apt update
-            sudo apt install -y docker.io awscli
-
-            # Login to ECR
-            aws ecr get-login-password --region $AWS_DEFAULT_REGION | sudo docker login --username AWS --password-stdin $REGISTRY
-
-            # Stop and remove any existing container
-            sudo docker stop myappcontainer || true
-            sudo docker rm myappcontainer || true
-
-            # Pull the new image and run it
-            sudo docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
-            sudo docker run -d --name myappcontainer -p 80:80 $REGISTRY/$REPOSITORY:$IMAGE_TAG
-
-            # Clean up unused Docker images
-            sudo docker image prune -f
+      - name: Create CodeDeploy Deployment
+        run: |
+          aws deploy create-deployment \
+            --application-name my-codedeploy-app \
+            --deployment-group-name my-deployment-group \
+            --s3-location bucket=my-deployment-artifact,bundleType=zip,key=appspec.yml \
+            --region $AWS_REGION
