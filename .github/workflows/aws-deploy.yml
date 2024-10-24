@@ -14,22 +14,31 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # Step 2: Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
 
-      - name: Sync files to S3
+      # Step 3: Create a deployment package (zip)
+      - name: Create deployment package
         run: |
-          aws s3 sync . s3://deploybucketapp/ --region $AWS_REGION       
+          zip -r AppSpec.zip AppSpec.yml scripts/
 
+      # Step 4: Sync zip file to S3
+      - name: Sync zip file to S3
+        run: |
+          aws s3 cp AppSpec.zip s3://deploybucketapp/AppSpec.zip --region $AWS_REGION
+
+      # Step 5: Create CodeDeploy Deployment
       - name: Create CodeDeploy Deployment
         run: |
           aws deploy create-deployment \
             --application-name my-codedeploy-app \
             --deployment-group-name my-deployment-group \
             --s3-location bucket=deploybucketapp,bundleType=zip,key=AppSpec.zip \
-            --region $AWS_REGION 
+            --region $AWS_REGION
