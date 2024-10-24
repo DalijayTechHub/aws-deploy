@@ -32,4 +32,4 @@ jobs:
             --application-name my-codedeploy-app \
             --deployment-group-name my-deployment-group \
             --s3-location bucket=deploybucketapp,bundleType=zip,key=AppSpec.zip \
-            --region $AWS_REGION
+            --region $AWS_REGION 
