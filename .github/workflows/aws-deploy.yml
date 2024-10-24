@@ -24,21 +24,17 @@ jobs:
         with:
           node-version: '20'
 
-      # Step 3: Install dependencies if needed (Optional)
-      # - name: Install dependencies
-      #   run: npm install
-
-      # Step 4: Create a deployment package (zip)
+      # Step 3: Create a deployment package (zip)
       - name: Create deployment package
         run: |
-          zip -r AppSpec.zip AppSpec.yml scripts/ other_project_files/
+          zip -r AppSpec.zip AppSpec.yml scripts/
 
-      # Step 5: Sync files to S3
-      - name: Sync files to S3
+      # Step 4: Sync zip file to S3
+      - name: Sync zip file to S3
         run: |
-          aws s3 sync . s3://deploybucketapp/ --region $AWS_REGION
+          aws s3 cp AppSpec.zip s3://deploybucketapp/AppSpec.zip --region $AWS_REGION
 
-      # Step 6: Create CodeDeploy Deployment
+      # Step 5: Create CodeDeploy Deployment
       - name: Create CodeDeploy Deployment
         run: |
           aws deploy create-deployment \
