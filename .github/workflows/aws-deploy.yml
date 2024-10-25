@@ -23,12 +23,13 @@ jobs:
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: task-definition.json
+          task-definition: ECS-Task-Definition
           cluster: MyEcsCluster
-          service: MyECS-APP
+          service: httpd-ecs
           codedeploy-application: my-codedeploy-app
           codedeploy-deployment-group: my-deployment-group
           codedeploy-appspec: appspec.yaml
           wait-for-service-stability: true
 
 
+ 
