@@ -23,7 +23,7 @@ jobs:
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ECS-Task-Definition
+          task-definition: task-definition.json
           cluster: MyEcsCluster
           service: httpd-ecs
           codedeploy-application: my-codedeploy-app
