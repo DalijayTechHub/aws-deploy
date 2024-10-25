@@ -1,51 +1,24 @@
-name: Deploy to AWS ECS
+name: Deploy to ECS
 
 on:
   push:
     branches:
-      - "main"
-
-env:
-  AWS_REGION: us-east-1
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - main  # or your deployment branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-
-      - name: Make scripts executable
-        run: chmod +x scripts/*.sh
-
-      - name: Create deployment package
-        run: |
-          zip -r appspec.zip appspec.yml scripts/
-
-      - name: List files in zip (debug step)
-        run: unzip -l appspec.zip
-
-      - name: Sync zip file to S3
-        run: |
-          aws s3 cp appspec.zip s3://deploybucketapp/appspec.zip --region $AWS_REGION
-
-      - name: Check AWS CLI version
-        run: aws --version
-
-      - name: List S3 bucket contents (debug step)
-        run: aws s3 ls s3://deploybucketapp/ --region $AWS_REGION
-
-      - name: Create CodeDeploy Deployment
-        run: |
-          aws deploy create-deployment \
-            --application-name my-codedeploy-app \
-            --deployment-group-name my-deployment-group \
-            --s3-location bucket=deploybucketapp,bundleType=zip,key=appspec.zip \
-            --region $AWS_REGION
+    - name: Deploy to ECS
+      uses: aws-actions/aws-ecs-deploy-task-definition@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        cluster: MyEcsCluster
+        service: my-app-service
+        task-definition: my-app-task
+        codedeploy-appspec: appspec.yml
