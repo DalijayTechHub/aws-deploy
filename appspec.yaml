@@ -5,5 +5,5 @@ Resources:
       Properties:
         TaskDefinition: ECS-Task-Definition
         LoadBalancerInfo:
-          ContainerName: MyEcsCluster # Name of the container in the task definition
+          ContainerName: nginx # Name of the container in the task definition
           ContainerPort: 80
