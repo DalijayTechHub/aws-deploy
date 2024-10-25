@@ -25,8 +25,8 @@ jobs:
         with:
           task-definition: task-definition.json
           cluster: MyEcsCluster
-          service: httpd-ecs
-          codedeploy-application: my-codedeploy-app
+          service: MyAppService
+          codedeploy-application: landing-page
           codedeploy-deployment-group: my-deployment-group
           codedeploy-appspec: appspec.yaml
           wait-for-service-stability: true
