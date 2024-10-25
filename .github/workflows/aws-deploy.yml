@@ -28,4 +28,7 @@ jobs:
           service: MyECS-APP
           codedeploy-application: my-codedeploy-app
           codedeploy-deployment-group: my-deployment-group
+          codedeploy-appspec: appspec.yaml
           wait-for-service-stability: true
+
+
